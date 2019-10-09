@@ -1,4 +1,4 @@
-from c1.fileserver import  *
+from fileserver import  *
 import Pyro4
 
 
