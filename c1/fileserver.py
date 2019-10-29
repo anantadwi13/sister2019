@@ -1,4 +1,5 @@
 import os
+import base64
 
 class FileServer(object):
     def __init__(self):
@@ -30,18 +31,17 @@ class FileServer(object):
     def read(self,name='filename000'):
         nama='FFF-{}' . format(name)
         try:
-            f = open(nama,'r')
+            f = open(nama,'r+b')
             contents = f.read()
             f.close()
             return self.create_return_message('101','OK',contents)
         except:
             return self.create_return_message('500','Error')
-    def update(self,name='filename000',content=None):
+    def update(self,name='filename000',content=''):
         nama='FFF-{}' . format(name)
         try:
             f = open(nama,'w+b')
-            f.seek(0)
-            f.write(content.encode())
+            f.write(content['data'].encode())
             f.close()
             return self.create_return_message('101','OK')
         except Exception as e:
@@ -62,9 +62,9 @@ if __name__ == '__main__':
     print(k.create('f1'))
     print(k.update('f1',content='wedusku'))
     print(k.read('f1'))
-    print(k.create('f2'))
-    print(k.update('f2',content='wedusmu'))
-    print(k.read('f2'))
+#    print(k.create('f2'))
+#    print(k.update('f2',content='wedusmu'))
+#    print(k.read('f2'))
     print(k.list())
     #print(k.delete('f1'))
 
