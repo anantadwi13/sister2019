@@ -32,16 +32,19 @@ class FileServer(object):
         nama='FFF-{}' . format(name)
         try:
             f = open(nama,'r+b')
-            contents = f.read()
+            contents = f.read().decode()
             f.close()
             return self.create_return_message('101','OK',contents)
         except:
             return self.create_return_message('500','Error')
     def update(self,name='filename000',content=''):
         nama='FFF-{}' . format(name)
+        print("isi",content)
+        if (str(type(content))=="<class 'dict'>"):
+            content = content['data']
         try:
             f = open(nama,'w+b')
-            f.write(content['data'].encode())
+            f.write(content.encode())
             f.close()
             return self.create_return_message('101','OK')
         except Exception as e:

@@ -10,11 +10,9 @@ def get_fileserver_object():
 if __name__=='__main__':
     f = get_fileserver_object()
     f.create('slide1.pdf')
-    f.create('slide2.pptx')
-    f.update('slide1.pdf', content = base64.b64encode(open('slide1.pdf','rb+').read()) )
-    f.update('slide2.pptx', content = base64.b64encode(open('slide2.pptx','rb+').read()) )
+    f.update('slide1.pdf', content = open('slide1.pdf','rb+').read() )
     print(f.list())
-    print(f.read('slide1.pdf'))
-    #kembalikan ke bentuk semula
-    open('slide1-kembali.pdf','w+b').write(base64.b64decode(f.read('slide1.pdf')['data']).encode())
+    d = f.read('slide1.pdf')
+    #kembalikan ke bentuk semula ke dalam file name slide1-kembali.pdf
+    open('slide1-kembali.pdf','w+b').write(base64.b64decode(d['data']))
 
