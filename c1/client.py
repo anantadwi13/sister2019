@@ -1,9 +1,12 @@
 import Pyro4
 import base64
 import json
+import sys
+
+namainstance = sys.argv[1] or "fileserver"
 
 def get_fileserver_object():
-    uri = "PYRONAME:fileserver@localhost:7777"
+    uri = "PYRONAME:{}@localhost:7777" . format(namainstance)
     fserver = Pyro4.Proxy(uri)
     return fserver
 

@@ -9,6 +9,7 @@ class FileServer(object):
         return dict(kode=kode,message=message,data=data)
 
     def list(self):
+        print("list ops")
         try:
             daftarfile = []
             for x in os.listdir():
@@ -20,6 +21,7 @@ class FileServer(object):
 
     def create(self, name='filename000'):
         nama='FFF-{}' . format(name)
+        print("create ops {}" . format(nama))
         try:
             if os.path.exists(name):
                 return self.create_return_message('102', 'OK','File Exists')
@@ -30,6 +32,7 @@ class FileServer(object):
             return self.create_return_message('500','Error')
     def read(self,name='filename000'):
         nama='FFF-{}' . format(name)
+        print("read ops {}" . format(nama))
         try:
             f = open(nama,'r+b')
             contents = f.read().decode()
@@ -39,7 +42,8 @@ class FileServer(object):
             return self.create_return_message('500','Error')
     def update(self,name='filename000',content=''):
         nama='FFF-{}' . format(name)
-        print("isi",content)
+        print("update ops {}" . format(nama))
+
         if (str(type(content))=="<class 'dict'>"):
             content = content['data']
         try:
@@ -52,6 +56,8 @@ class FileServer(object):
 
     def delete(self,name='filename000'):
         nama='FFF-{}' . format(name)
+        print("delete ops {}" . format(nama))
+
         try:
             os.remove(nama)
             return self.create_return_message('101','OK')
