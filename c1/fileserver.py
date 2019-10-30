@@ -1,4 +1,5 @@
 import os
+import base64
 
 class FileServer(object):
     def __init__(self):
@@ -8,6 +9,7 @@ class FileServer(object):
         return dict(kode=kode,message=message,data=data)
 
     def list(self):
+        print("list ops")
         try:
             daftarfile = []
             for x in os.listdir():
@@ -19,6 +21,7 @@ class FileServer(object):
 
     def create(self, name='filename000'):
         nama='FFF-{}' . format(name)
+        print("create ops {}" . format(nama))
         try:
             if os.path.exists(name):
                 return self.create_return_message('102', 'OK','File Exists')
@@ -29,18 +32,22 @@ class FileServer(object):
             return self.create_return_message('500','Error')
     def read(self,name='filename000'):
         nama='FFF-{}' . format(name)
+        print("read ops {}" . format(nama))
         try:
-            f = open(nama,'r')
-            contents = f.read()
+            f = open(nama,'r+b')
+            contents = f.read().decode()
             f.close()
             return self.create_return_message('101','OK',contents)
         except:
             return self.create_return_message('500','Error')
-    def update(self,name='filename000',content=None):
+    def update(self,name='filename000',content=''):
         nama='FFF-{}' . format(name)
+        print("update ops {}" . format(nama))
+
+        if (str(type(content))=="<class 'dict'>"):
+            content = content['data']
         try:
             f = open(nama,'w+b')
-            f.seek(0)
             f.write(content.encode())
             f.close()
             return self.create_return_message('101','OK')
@@ -49,6 +56,8 @@ class FileServer(object):
 
     def delete(self,name='filename000'):
         nama='FFF-{}' . format(name)
+        print("delete ops {}" . format(nama))
+
         try:
             os.remove(nama)
             return self.create_return_message('101','OK')
@@ -62,9 +71,9 @@ if __name__ == '__main__':
     print(k.create('f1'))
     print(k.update('f1',content='wedusku'))
     print(k.read('f1'))
-    print(k.create('f2'))
-    print(k.update('f2',content='wedusmu'))
-    print(k.read('f2'))
+#    print(k.create('f2'))
+#    print(k.update('f2',content='wedusmu'))
+#    print(k.read('f2'))
     print(k.list())
     #print(k.delete('f1'))
 
