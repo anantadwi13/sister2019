@@ -2,6 +2,7 @@ import Pyro4
 import base64
 import json
 import sys
+import time
 
 namainstance = sys.argv[1] if len(sys.argv) >= 2 else "fileserver"
 
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     f = get_fileserver_object()
     f.create('slide1.pdf')
     f.update('slide1.pdf', content=open('slide1.pdf', 'rb+').read())
+    time.sleep(1)
 
     f.create('slide2.pptx')
     f.update('slide2.pptx', content=open('slide2.pptx', 'rb+').read())

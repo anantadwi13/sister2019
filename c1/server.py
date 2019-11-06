@@ -16,6 +16,54 @@ def start_without_ns():
     daemon.requestLoop()
 
 
+def get_fileserver_object(nama_server):
+    uri = "PYRONAME:{}@localhost:7777".format(nama_server)
+    fserver = Pyro4.Proxy(uri)
+    return fserver
+
+
+def init_server():
+    FileServer.DIR = ".\\{}\\".format(namainstance)
+    FileServer.NAME = namainstance
+    try:
+        os.mkdir(FileServer.DIR)
+    except:
+        pass
+
+    FileServer.FILEHISTORY = "{}{}".format(FileServer.DIR, FileServer.FILEHISTORY)
+    print(FileServer.FILEHISTORY)
+    with open(FileServer.FILEHISTORY, 'a+') as fw:
+        pass
+    with open(FileServer.FILEHISTORY, 'r') as fr:
+        FileServer.HISTORY = {'timestamp': time, 'history': {}}
+        try:
+            FileServer.HISTORY = json.loads(fr.read())
+        except Exception as e:
+            print(e)
+            pass
+
+    # for failover
+    curr_history = {'timestamp': 0, 'history': {}}
+    selected_server = None
+    for server in FileServer.SERVER:
+        if server == FileServer.NAME: continue
+        tmp_history = get_fileserver_object(server).get_file_history()
+        if tmp_history is None or tmp_history['data'] is None or tmp_history['data']['timestamp'] <= curr_history['timestamp']: continue
+        curr_history = tmp_history['data']
+        selected_server = get_fileserver_object(server)
+
+    if selected_server is not None:
+        fs = FileServer()
+        for filename, histories in curr_history['history'].items():
+            for cmd in histories:
+                if cmd == FileServer.CMD_CREATE:
+                    fs.create(filename, False)
+                elif cmd == FileServer.CMD_UPDATE:
+                    fs.update(filename, selected_server.read(filename)['data'], False)
+                elif cmd == FileServer.CMD_DELETE:
+                    fs.delete(filename, False)
+
+
 def start_with_ns():
     # name server harus di start dulu dengan  pyro4-ns -n localhost -p 7777
     # gunakan URI untuk referensi name server yang akan digunakan
@@ -23,8 +71,11 @@ def start_with_ns():
 
     daemon = Pyro4.Daemon(host="localhost")
     ns = Pyro4.locateNS("localhost", 7777)
-    FileServer.DIR = ".\\{}\\".format(namainstance)
-    FileServer.NAME = namainstance
+    ping_service = PingService()
+
+    ping_service.start()
+    insert_server()
+    init_server()
     x_FileServer = Pyro4.expose(FileServer)
     uri_fileserver = daemon.register(x_FileServer)
     ns.register("{}".format(namainstance), uri_fileserver, metadata={"{}".format(namainstance)})
@@ -32,10 +83,6 @@ def start_with_ns():
     # ns.register("fileserver2", uri_fileserver)
     # ns.register("fileserver3", uri_fileserver)
 
-    ping_service = PingService()
-
-    insert_server()
-    ping_service.start()
     daemon.requestLoop()
     delete_server()
 
@@ -43,7 +90,7 @@ def start_with_ns():
 
 
 def insert_server():
-    with open(SERVERINSTANCE_FILE, 'w') as fw:
+    with open(SERVERINSTANCE_FILE, 'a+') as fw:
         pass
     with open(SERVERINSTANCE_FILE, 'r') as fr:
         servers = []
@@ -85,6 +132,7 @@ class PingService(threading.Thread):
                     FileServer.SERVER.extend(servers)
                 except:
                     pass
+            time.sleep(100)
 
     def kill(self):
         self.running = False
